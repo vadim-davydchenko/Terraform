@@ -1,5 +1,3 @@
-
-
 provider "aws" {
     region = var.region
 }
@@ -15,11 +13,7 @@ data "aws_ami" "latest_amazon_linux" {
 
 resource "aws_eip" "my_static_ip" {
   instance = aws_instance.my_server.id
-  tags = {
-      Name    = "Server IP"
-      Owner   = "Vadim"
-      Project = "Lead" 
-  }
+  tags     = merge(var.common-tags, { Name = "${var.common-tags["Environment"]} Server IP" })
 }
 
 resource "aws_instance" "my_server" {
@@ -27,11 +21,7 @@ resource "aws_instance" "my_server" {
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.my_server.id]
   monitoring             = var.enable_detailed_monitoring
-  tags = {
-      Name    = "Server by Terraform"
-      Owner   = "Vadim"
-      Project = "Lead" 
-  }
+  tags     = merge(var.common-tags, { Name = "${var.common-tags["Environment"]} Server by Terraform" })
 }
 
 resource "aws_security_group" "my_server" {
@@ -46,7 +36,6 @@ for_each = var.allow_ports
     cidr_blocks      = ["0.0.0.0/0"]
   }
 }
-
     
   egress {
       from_port        = 0
@@ -55,9 +44,5 @@ for_each = var.allow_ports
       cidr_blocks      = ["0.0.0.0/0"]
       
     }
-  tags = {
-  Name = "Web Server SecurityGroup"
-  Owner = "Vadim"
-  
-}
+   tags     = merge(var.common-tags, { Name = "${var.common-tags["Environment"]} Web Server SecurityGroup" })  
 }
